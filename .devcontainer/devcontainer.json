@@ -5,7 +5,7 @@
 	},
 	// Allow ALL USB devices to be visible in the devcontainer
 	"mounts": [
-		"type=bind,source=/dev/bus/usb,target=/dev/bus/usb"
+		"type=bind,source=/dev,target=/dev"
 	],
 	"runArgs": [
 		"--privileged"

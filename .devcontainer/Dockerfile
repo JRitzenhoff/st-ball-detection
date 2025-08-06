@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y \
     curl \
     unzip \
     libusb-1.0-0-dev \
+    # Required for lsusb
+    usbutils \
     && rm -rf /var/lib/apt/lists/*
 
 # Create the VSCode user (and add to the sudo group)
