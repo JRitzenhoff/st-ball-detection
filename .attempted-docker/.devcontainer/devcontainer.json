@@ -5,6 +5,7 @@
 	},
 	// Allow ALL USB devices to be visible in the devcontainer
 	"mounts": [
+		// NOTE: Only possible using a usbip server
 		"type=bind,source=/dev,target=/dev"
 	],
 	"runArgs": [
