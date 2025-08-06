@@ -1,0 +1,26 @@
+{
+	"name": "Embassy Dev",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	// Allow ALL USB devices to be visible in the devcontainer
+	"mounts": [
+		"type=bind,source=/dev/bus/usb,target=/dev/bus/usb"
+	],
+	"runArgs": [
+		"--privileged"
+	],
+	// Make sure that the remote user matches the one in the Dockerfile
+	"remoteUser": "vscode",
+	// Handle VSCode specific settings
+	// Install rust-related extensions
+	"extensions": [
+		"rust-lang.rust-analyzer",
+		"ms-vscode.cpptools",
+		"tamasfe.even-better-toml"
+	],
+	// Set bash as the default terminal in the devcontainer
+	"settings": {
+		"terminal.integrated.defaultProfile.linux": "bash"
+	}
+}
