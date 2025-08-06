@@ -1,5 +1,5 @@
 # Use official Rust image
-FROM rust:1-bullseye
+FROM rust:1-trixie
 
 # Set build-time arguments for user
 ARG USERNAME=vscode
@@ -35,4 +35,4 @@ RUN chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.config
 USER ${USERNAME}
 
 # Install probe-rs as a system-wide
-# RUN cargo install probe-rs-tools --locked
+RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/probe-rs/probe-rs/releases/latest/download/probe-rs-tools-installer.sh | sh
