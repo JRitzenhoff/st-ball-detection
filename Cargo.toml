@@ -1,0 +1,18 @@
+[package]
+edition = "2024"
+name = "st-ball-detection"
+version = "0.1.1"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# https://docs.embassy.dev/embassy-stm32/git/stm32l4s5vi/index.html
+embassy-stm32 = { version = "0.2.0", features = ["defmt", "time-driver-any", "stm32l4s5vi", "memory-x", "unstable-pac"]}
+
+# https://docs.embassy.dev/embassy-executor/git/cortex-m/index.html
+embassy-executor = { version = "0.8.0", features = ["defmt", "arch-cortex-m", "executor-thread"] }
+
+# https://docs.embassy.dev/embassy-time/git/default/index.html
+embassy-time = { version = "0.4.0", features = ["defmt-timestamp-uptime", "tick-hz-32_768"] }
+
+[profile.release]
+debug = 2

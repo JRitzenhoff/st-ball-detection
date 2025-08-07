@@ -1,0 +1,11 @@
+[target.'cfg(all(target_arch = "arm", target_os = "none"))']
+# Chip is defined in the doc datasheet
+runner = "probe-rs run --chip stm32l4s5vi"
+
+[build]
+# Target that includes the Arm Cortex M4
+#   See: https://doc.rust-lang.org/nightly/rustc/platform-support/thumbv7em-none-eabi.html
+target = "thumbv7em-none-eabi"
+
+[env]
+DEFMT_LOG = "trace"
