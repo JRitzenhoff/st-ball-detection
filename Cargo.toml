@@ -5,14 +5,22 @@ version = "0.1.1"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-# https://docs.embassy.dev/embassy-stm32/git/stm32l4s5vi/index.html
-embassy-stm32 = { version = "0.2.0", features = ["defmt", "time-driver-any", "stm32l4s5vi", "memory-x", "unstable-pac"]}
-
-# https://docs.embassy.dev/embassy-executor/git/cortex-m/index.html
-embassy-executor = { version = "0.8.0", features = ["defmt", "arch-cortex-m", "executor-thread"] }
-
 # https://docs.embassy.dev/embassy-time/git/default/index.html
 embassy-time = { version = "0.4.0", features = ["defmt-timestamp-uptime", "tick-hz-32_768"] }
+
+# https://docs.embassy.dev/embassy-stm32/git/stm32l4s5vi/index.html
+embassy-stm32 = { version = "0.2.0", features = ["defmt", "time", "time-driver-tim1", "stm32l4s5vi", "memory-x", "unstable-pac"]}
+
+# https://docs.embassy.dev/embassy-executor/git/cortex-m/index.html
+# Need to downgrade the embassy-executor until the newest version is release: https://github.com/embassy-rs/embassy/issues/4511
+embassy-executor = { version = "0.7.0", features = ["defmt", "arch-cortex-m", "executor-thread"] }
+
+# Standard Embassy Crates
+cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
+cortex-m-rt = "0.7.5"
+defmt = "1.0.1"
+defmt-rtt = "1.0.0"
+panic-probe = { version = "1.0.0", features = ["print-defmt"] }
 
 [profile.release]
 debug = 2

@@ -7,5 +7,8 @@ runner = "probe-rs run --chip stm32l4s5vi"
 #   See: https://doc.rust-lang.org/nightly/rustc/platform-support/thumbv7em-none-eabi.html
 target = "thumbv7em-none-eabi"
 
+# NOTE: ^^ Target may need to be installed with `rustup target add thumbv7em-none-eabi`
+#   * Shouldn't be required because of the rust-toolchain.toml file
+
 [env]
 DEFMT_LOG = "trace"
