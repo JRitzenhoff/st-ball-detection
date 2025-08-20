@@ -7,6 +7,12 @@ use embassy_stm32::gpio::{Level, Output, Speed};
 use embassy_time::Timer;
 use {defmt_rtt as _, panic_probe as _};
 
+// NOTE: Can use a timer to read pulse width from the Polulu sensor:
+//  https://blog.theembeddedrustacean.com/embassy-on-esp-timers
+
+// Actual sensor datasheet:
+//  https://www.pololu.com/product/5562
+
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
     let p = embassy_stm32::init(Default::default());
