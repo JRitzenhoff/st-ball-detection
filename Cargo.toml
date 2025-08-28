@@ -9,7 +9,7 @@ license = "MIT OR Apache-2.0"
 embassy-time = { version = "0.4.0", features = ["defmt-timestamp-uptime", "tick-hz-32_768"] }
 
 # https://docs.embassy.dev/embassy-stm32/git/stm32l4s5vi/index.html
-embassy-stm32 = { version = "0.2.0", features = ["defmt", "time", "time-driver-tim1", "stm32l4s5vi", "memory-x", "unstable-pac"]}
+embassy-stm32 = { version = "0.2.0", features = ["defmt", "exti", "time", "time-driver-tim1", "stm32l4s5vi", "memory-x", "unstable-pac"]}
 
 # https://docs.embassy.dev/embassy-executor/git/cortex-m/index.html
 # Need to downgrade the embassy-executor until the newest version is release: https://github.com/embassy-rs/embassy/issues/4511
