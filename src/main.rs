@@ -85,44 +85,48 @@ async fn exti_mm_read(mut pin: ExtiInput<'static>) {
 
 #[allow(dead_code)]
 #[embassy_executor::task]
-async fn pwm_read_timer(pwm_input: PwmInput<'static, peripherals::TIM3>) {
+async fn pwm_read_timer(pwm_input: PwmInput<'static, peripherals::TIM17>) {
     // Some of the example logic is inspired by: https://github.com/embassy-rs/embassy/blob/main/examples/stm32f4/src/bin/pwm_input.rs
-
-    let mut pwm_input = pwm_input;
-
-    // Explictly enable the input
-    pwm_input.enable();
-
     loop {
-        // let pulse_time = pwm_input.get_period_ticks();
-        let pulse_time = pwm_input.get_width_ticks();
-        // let pulse_time = pwm_input.get_duty_cycle();
+        Timer::after_millis(500).await;
 
-        if pulse_time == 0 {
+        let period_ticks = pwm_input.get_period_ticks();
+        let width_ticks = pwm_input.get_width_ticks();
+        let duty_cycle = pwm_input.get_duty_cycle();
+
+        info!(
+            "period ticks: {} width ticks: {} duty cycle: {}",
+            period_ticks, width_ticks, duty_cycle
+        );
+
+        if width_ticks == 0 {
             println!("Sensor timeout")
-        } else if pulse_time > 1850 {
+        } else if width_ticks > 1850 {
             // No detection.
             println!("No detection yet")
         } else {
             // Valid pulse width reading. Convert pulse width in microseconds to distance in millimeters.
             // let distance = (pulse_time - 1000) * 3 / 4;
-            println!("Detected distance: {} mm", pulse_time);
+            println!("Detected distance: {} mm", width_ticks);
         }
     }
 }
 
+// This asserts that the interrupt handler should be configured correctly
+//  By `find . -iname _generated.rs` it's possible to see where the interrupts are actually defined
+//  Unfortunately, TIM17 does not have a clean name like the others
 bind_interrupts!(
     struct Irqs {
-        TIM3 => timer::CaptureCompareInterruptHandler<peripherals::TIM3>;
+        TIM1_TRG_COM_TIM17 => timer::CaptureCompareInterruptHandler<peripherals::TIM17>;
     }
 );
 
 #[embassy_executor::main]
-async fn main(spawner: Spawner) {
+async fn main(_spawner: Spawner) {
     let p = embassy_stm32::init(Default::default());
     info!("Hello World!");
 
-    let mut led = Output::new(p.PB14, Level::High, Speed::Low);
+    // let mut led = Output::new(p.PB14, Level::High, Speed::Low);
     // let mut second_led = Output::new(p.PA5, Level::High, Speed::Low);
 
     // // Use EXTI to detect the signal change
@@ -136,13 +140,38 @@ async fn main(spawner: Spawner) {
     // spawner.spawn(exti_mm_read(prox_trigger)).unwrap();
 
     // Use the PWM Input to detect the signal change
-    let pwm_input = PwmInput::new_ch2(p.TIM3, p.PA7, Pull::None, Hertz::khz(100));
-    spawner.spawn(pwm_read_timer(pwm_input)).unwrap();
+    let mut pwm_input = PwmInput::new_ch1(p.TIM17, p.PB9, Pull::None, Hertz::khz(100));
+    pwm_input.enable();
+    // let _ = spawner.spawn(pwm_read_timer(pwm_input));
 
     loop {
-        led.set_high();
-        Timer::after_millis(1000).await;
-        led.set_low();
-        Timer::after_millis(5000).await;
+        Timer::after_millis(500).await;
+
+        let period_ticks = pwm_input.get_period_ticks();
+        let width_ticks = pwm_input.get_width_ticks();
+        let duty_cycle = pwm_input.get_duty_cycle();
+
+        info!(
+            "period ticks: {} width ticks: {} duty cycle: {}",
+            period_ticks, width_ticks, duty_cycle
+        );
+
+        if width_ticks == 0 {
+            println!("Sensor timeout")
+        } else if width_ticks > 1850 {
+            // No detection.
+            println!("No detection yet")
+        } else {
+            // Valid pulse width reading. Convert pulse width in microseconds to distance in millimeters.
+            // let distance = (pulse_time - 1000) * 3 / 4;
+            println!("Detected distance: {} mm", width_ticks);
+        }
     }
+
+    // loop {
+    //     led.set_high();
+    //     Timer::after_millis(1000).await;
+    //     led.set_low();
+    //     Timer::after_millis(5000).await;
+    // }
 }
