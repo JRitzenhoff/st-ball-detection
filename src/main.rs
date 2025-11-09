@@ -23,16 +23,27 @@ async fn main(_spawner: Spawner) {
 
     const TRIGGER_THRESHOLD: u64 = 3000;
 
+    let mut pre_trigger_time: Instant;
+    let mut trigger_micros: u64;
+
     loop {
         // Capture the timestamp when the pulse starts
-        button.wait_for_rising_edge().await;
-        let pre_trigger_time = Instant::now();
+        button.wait_for_any_edge().await;
+        pre_trigger_time = Instant::now();
+        if button.is_low() {
+            continue;
+        }
 
         // Capture the timestamp when the pulse ends
-        button.wait_for_falling_edge().await;
-        let post_trigger_time = pre_trigger_time.elapsed().as_micros();
+        button.wait_for_any_edge().await;
+        trigger_micros = pre_trigger_time.elapsed().as_micros();
+        if button.is_high() {
+            // This doesn't make any sense
+            error!("Triggered interrupt and input is still high");
+            continue;
+        }
 
-        if post_trigger_time > TRIGGER_THRESHOLD {
+        if trigger_micros > TRIGGER_THRESHOLD {
             triggered_led.set_high();
             // info!("Captured {}", post_trigger_time);
         } else {
