@@ -3,8 +3,9 @@
 
 use defmt::*;
 use embassy_executor::Spawner;
-use embassy_stm32::exti::ExtiInput;
-use embassy_stm32::gpio::Pull;
+use embassy_stm32::gpio::{Level, Pull, Speed};
+use embassy_stm32::{exti::ExtiInput, gpio::Output};
+use embassy_time::Instant;
 use {defmt_rtt as _, panic_probe as _};
 
 #[embassy_executor::main]
@@ -12,14 +13,30 @@ async fn main(_spawner: Spawner) {
     let p = embassy_stm32::init(Default::default());
     info!("Hello World!");
 
-    let mut button = ExtiInput::new(p.PC13, p.EXTI13, Pull::Up);
+    let mut triggered_led = Output::new(p.PA5, Level::High, Speed::Low);
+    triggered_led.set_low();
+
+    // let mut button = ExtiInput::new(p.PC13, p.EXTI13, Pull::Up); // user-button
+    let mut button = ExtiInput::new(p.PD14, p.EXTI14, Pull::Up); // Arduino D2
 
     info!("Press the USER button...");
 
+    const TRIGGER_THRESHOLD: u64 = 3000;
+
     loop {
-        button.wait_for_falling_edge().await;
-        info!("Pressed!");
+        // Capture the timestamp when the pulse starts
         button.wait_for_rising_edge().await;
-        info!("Released!");
+        let pre_trigger_time = Instant::now();
+
+        // Capture the timestamp when the pulse ends
+        button.wait_for_falling_edge().await;
+        let post_trigger_time = pre_trigger_time.elapsed().as_micros();
+
+        if post_trigger_time > TRIGGER_THRESHOLD {
+            triggered_led.set_high();
+            // info!("Captured {}", post_trigger_time);
+        } else {
+            triggered_led.set_low();
+        }
     }
 }
