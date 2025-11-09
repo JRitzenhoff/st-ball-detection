@@ -126,8 +126,8 @@ async fn main(spawner: Spawner) {
     // spawner.spawn(exti_mm_read(prox_trigger)).unwrap();
 
     // Use the PWM Input to detect the signal change
-    let pwm_trigger = PwmInput::new(p.TIM17, p.PA7, Pull::Down, Hertz(142));
-    spawner.spawn(pwm_read_timer(pwm_trigger)).unwrap();
+    let pwm_input = PwmInput::new_ch1(p.TIM17, p.PA7, Pull::None, Hertz::khz(100));
+    spawner.spawn(pwm_read_timer(pwm_input)).unwrap();
 
     loop {
         led.set_high();
