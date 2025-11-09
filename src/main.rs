@@ -3,29 +3,23 @@
 
 use defmt::*;
 use embassy_executor::Spawner;
-use embassy_stm32::gpio::{Level, Output, Speed};
-use embassy_time::Timer;
+use embassy_stm32::exti::ExtiInput;
+use embassy_stm32::gpio::Pull;
 use {defmt_rtt as _, panic_probe as _};
-
-// NOTE: Can use a timer to read pulse width from the Polulu sensor:
-//  https://blog.theembeddedrustacean.com/embassy-on-esp-timers
-
-// Actual sensor datasheet:
-//  https://www.pololu.com/product/5562
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
     let p = embassy_stm32::init(Default::default());
     info!("Hello World!");
 
-    let mut led = Output::new(p.PB14, Level::High, Speed::Low);
+    let mut button = ExtiInput::new(p.PC13, p.EXTI13, Pull::Up);
+
+    info!("Press the USER button...");
 
     loop {
-        led.set_high();
-        Timer::after_millis(300).await;
-        led.set_low();
-        Timer::after_millis(100).await;
-
-        info!("Hello world AGAIN!");
+        button.wait_for_falling_edge().await;
+        info!("Pressed!");
+        button.wait_for_rising_edge().await;
+        info!("Released!");
     }
 }
