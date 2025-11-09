@@ -4,12 +4,12 @@
 use defmt::*;
 use embassy_executor::Spawner;
 use embassy_stm32::{
+    bind_interrupts,
     exti::ExtiInput,
     gpio::{Level, Output, Pull, Speed},
-    // pac::TIM17,
-    peripherals::TIM17,
+    peripherals,
     time::Hertz,
-    timer::pwm_input::PwmInput,
+    timer::{self, pwm_input::PwmInput},
 };
 use embassy_time::{Duration, Instant, Timer};
 use {defmt_rtt as _, panic_probe as _};
@@ -25,6 +25,10 @@ use {defmt_rtt as _, panic_probe as _};
 
 // Examples for the stm32l4 board
 //  https://github.com/embassy-rs/embassy/tree/main/examples/stm32l4
+
+// Understanding the timers
+//  In the stm32l4s5vi-overview.pdf file there is a chart with the mappings of timers to each input
+//  On page 77/273, the row for PA7 shows the different timers connected
 
 #[allow(dead_code)]
 #[embassy_executor::task]
@@ -81,7 +85,7 @@ async fn exti_mm_read(mut pin: ExtiInput<'static>) {
 
 #[allow(dead_code)]
 #[embassy_executor::task]
-async fn pwm_read_timer(pwm_input: PwmInput<'static, TIM17>) {
+async fn pwm_read_timer(pwm_input: PwmInput<'static, peripherals::TIM3>) {
     // Some of the example logic is inspired by: https://github.com/embassy-rs/embassy/blob/main/examples/stm32f4/src/bin/pwm_input.rs
 
     let mut pwm_input = pwm_input;
@@ -101,11 +105,17 @@ async fn pwm_read_timer(pwm_input: PwmInput<'static, TIM17>) {
             println!("No detection yet")
         } else {
             // Valid pulse width reading. Convert pulse width in microseconds to distance in millimeters.
-            let distance = (pulse_time - 1000) * 3 / 4;
-            println!("Detected distance: {} mm", distance);
+            // let distance = (pulse_time - 1000) * 3 / 4;
+            println!("Detected distance: {} mm", pulse_time);
         }
     }
 }
+
+bind_interrupts!(
+    struct Irqs {
+        TIM3 => timer::CaptureCompareInterruptHandler<peripherals::TIM3>;
+    }
+);
 
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
@@ -126,7 +136,7 @@ async fn main(spawner: Spawner) {
     // spawner.spawn(exti_mm_read(prox_trigger)).unwrap();
 
     // Use the PWM Input to detect the signal change
-    let pwm_input = PwmInput::new_ch1(p.TIM17, p.PA7, Pull::None, Hertz::khz(100));
+    let pwm_input = PwmInput::new_ch2(p.TIM3, p.PA7, Pull::None, Hertz::khz(100));
     spawner.spawn(pwm_read_timer(pwm_input)).unwrap();
 
     loop {
