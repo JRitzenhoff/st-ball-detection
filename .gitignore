@@ -1,2 +1,6 @@
+# Generated files
+.DS_Store
+
+# Rust-Generated
 target/
 examples/
