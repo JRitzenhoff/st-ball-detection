@@ -13,4 +13,10 @@
   "rust-analyzer.cargo.target": "thumbv7em-none-eabi",
   "rust-analyzer.cargo.features": [],
   "rust-analyzer.linkedProjects": [],
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/.hg/store/**": true,
+    "**/target/**": true,
+  }
 }
